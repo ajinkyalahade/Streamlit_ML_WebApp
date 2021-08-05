@@ -276,9 +276,9 @@ def user_inputs_ui(da,data):
 #User values
 st.markdown("<hr>",unsafe_allow_html=True)
 st.header("2) User Values")
-with st.beta_expander("Learn More: https://github.com/ajinkyalahade/Heart-Disease---Classifications-Machine-Learning-/blob/master/Heart_disease.ipynb"):
+with st.beta_expander("Learn More"):
     st.markdown("""
-    Please fill in your data to see the results. <br>
+    Please fill in your data to see the results. https://github.com/ajinkyalahade/Heart-Disease---Classifications-Machine-Learning-/blob/master/Heart_disease.ipynb<br>
     <p style='color: red;'> 1 - High Risk </p> <p style='color: green;'> 0 - Low Risk </p>
     """,unsafe_allow_html=True)
 
