@@ -27,7 +27,7 @@ from sklearn.decomposition import PCA
 start_time=time.time()
 #Title for the webpage
 tit1,tit2 = st.beta_columns((4, 1))
-tit1.markdown("<h1 style='text-align: center;'><u>Fatal Health Conditions Main</u> </h1>",unsafe_allow_html=True)
+tit1.markdown("<h1 style='text-align: center;'><u>Heart Attack/Disease Prediction</u> </h1>",unsafe_allow_html=True)
 st.sidebar.title("Dataset and ML Classifier")
 
 dataset_select=st.sidebar.selectbox("Select Dataset: ",('Heart Attack',"Heart Disease"))
