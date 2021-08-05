@@ -38,7 +38,7 @@ LE = LabelEncoder()
 def get_dataset(dataset_select):
     if dataset_select == "Heart Attack":
         data=pd.read_csv("https://raw.githubusercontent.com/ajinkyalahade/Streamlit_ML_WebApp/main/Data/heart.csv")
-        st.header("Heart Attack UCI Data Based Prediction")
+        st.header("Heart Attack Probability- UCI Data Based Prediction")
         return data
 
     else:
@@ -154,6 +154,154 @@ def add_parameter_ui(clf_name):
 params = add_parameter_ui(classifier_select)
 
 
+#get classifier by selections above
+def get_classifier(clf_name,params):
+    global clf
+    if clf_name == "Logistic Regression":
+        clf = LogisticRegression(C=params["R"],max_iter=params["MI"])
+
+    elif clf_name == "KNN":
+        clf = KNeighborsClassifier(n_neighbors=params["K"])
+
+    elif clf_name == "SVM":
+        clf = SVC(kernel=params["kernel"],C=params["C"])
+
+    elif clf_name == "Decision Trees":
+        clf = DecisionTreeClassifier(max_depth=params["M"],criterion=params["C"],min_impurity_split=params["SS"])
+
+    elif clf_name == "Random Forest":
+        clf = RandomForestClassifier(n_estimators=params["N"],max_depth=params["M"],criterion=params["C"])
+
+    elif clf_name == "Gradient Boosting":
+        clf = GradientBoostingClassifier(n_estimators=params["N"],learning_rate=params["LR"],loss=params["L"],max_depth=params["M"])
+
+    elif clf_name == "XGBoost":
+        clf = XGBClassifier(booster="gbtree",n_estimators=params["N"],max_depth=params["M"],learning_rate=params["LR"],
+                            objective=params["O"],gamma=params["G"],reg_alpha=params["A"],reg_lambda=params["L"],colsample_bytree=params["CS"])
+
+    return clf
+
+clf = get_classifier(classifier_select,params)
+########################################################################################################################
+#get model trained
+def model():
+    X_train,X_test,Y_train,Y_test=train_test_split(X,Y,test_size=0.2,random_state=65)
+
+    #MinMax Scaling / Normalization of data
+    Std_scaler = StandardScaler()
+    X_train = Std_scaler.fit_transform(X_train)
+    X_test = Std_scaler.transform(X_test)
+
+    clf.fit(X_train,Y_train)
+    Y_pred = clf.predict(X_test)
+    acc=accuracy_score(Y_test,Y_pred)
+
+    return Y_pred,Y_test
+
+Y_pred,Y_test=model()
+
+########################################################################################################################
+#Plot Output
+def compute(Y_pred,Y_test):
+    #Plot PCA
+    pca=PCA(2)
+    X_projected = pca.fit_transform(X)
+    x1 = X_projected[:,0]
+    x2 = X_projected[:,1]
+    plt.figure(figsize=(16,8))
+    plt.scatter(x1,x2,c=Y,alpha=0.8,cmap="viridis")
+    plt.xlabel("Principal Component 1")
+    plt.ylabel("Principal Component 2")
+    plt.colorbar()
+    st.pyplot()
+
+    c1, c2 = st.beta_columns((4,3))
+    #Output plot
+    plt.figure(figsize=(12,6))
+    plt.scatter(range(len(Y_pred)),Y_pred,color="yellow",lw=5,label="Predictions")
+    plt.scatter(range(len(Y_test)),Y_test,color="red",label="Actual")
+    plt.title("Prediction Values vs Real Values")
+    plt.legend()
+    plt.grid(True)
+    c1.pyplot()
+
+    #Confusion Matrix
+    cm=confusion_matrix(Y_test,Y_pred)
+    class_label = ["High-risk", "Low-risk"]
+    df_cm = pd.DataFrame(cm, index=class_label,columns=class_label)
+    plt.figure(figsize=(12, 7.5))
+    sns.heatmap(df_cm,annot=True,cmap='Pastel1',linewidths=2,fmt='d')
+    plt.title("Confusion Matrix",fontsize=15)
+    plt.xlabel("Predicted")
+    plt.ylabel("True")
+    c2.pyplot()
+
+    #Calculate Metrics
+    acc=accuracy_score(Y_test,Y_pred)
+    mse=mean_squared_error(Y_test,Y_pred)
+    precision, recall, fscore, train_support = score(Y_test, Y_pred, pos_label=1, average='binary')
+    st.subheader("Metrics of the model: ")
+    st.text('Precision: {} \nRecall: {} \nF1-Score: {} \nAccuracy: {} %\nMean Squared Error: {}'.format(
+        round(precision, 3), round(recall, 3), round(fscore,3), round((acc*100),3), round((mse),3)))
+
+st.markdown("<hr>",unsafe_allow_html=True)
+st.header(f"1) Model for Prediction of {dataset_name}")
+st.subheader(f"Classifier Used: {classifier_name}")
+compute(Y_pred,Y_test)
+
+#Execution Time
+end_time=time.time()
+st.info(f"Total execution time: {round((end_time - start_time),4)} seconds")
+
+
+#Get user values
+def user_inputs_ui(dataset_name,data):
+    user_val = {}
+    if dataset_name == "Breast Cancer":
+        X = data.drop(["id","diagnosis"], axis=1)
+        for col in X.columns:
+            name=col
+            col = st.number_input(col, abs(X[col].min()-round(X[col].std())), abs(X[col].max()+round(X[col].std())))
+            user_val[name] = round((col),4)
+
+    elif dataset_name == "Heart Attack":
+        X = data.drop(["output"], axis=1)
+        for col in X.columns:
+            name=col
+            col = st.number_input(col, abs(X[col].min()-round(X[col].std())), abs(X[col].max()+round(X[col].std())))
+            user_val[name] = col
+
+    return user_val
+
+#User values
+st.markdown("<hr>",unsafe_allow_html=True)
+st.header("2) User Values")
+with st.beta_expander("See more"):
+    st.markdown("""
+    In this section you can use your own values to predict the target variable. 
+    Input the required values below and you will get your status based on the values. <br>
+    <p style='color: red;'> 1 - High Risk </p> <p style='color: green;'> 0 - Low Risk </p>
+    """,unsafe_allow_html=True)
+
+user_val=user_inputs_ui(dataset_name,data)
+
+#@st.cache(suppress_st_warning=True)
+def user_predict():
+    global U_pred
+    if dataset_select == "Breast Cancer":
+        X = data.drop(["id","diagnosis"], axis=1)
+        U_pred = clf.predict([[user_val[col] for col in X.columns]])
+
+    elif dataset_select == "Heart Attack":
+        X = data.drop(["output"], axis=1)
+        U_pred = clf.predict([[user_val[col] for col in X.columns]])
+
+    st.subheader("Your Status: ")
+    if U_pred == 0:
+        st.write(U_pred[0], " - YOU ARE NOT AT RISK -- THIS IS NOT A PROFESSIONAL MEDICAL ADVISE - CONTACT YOUR PRIMARY CARE PROVIDER")
+    else:
+        st.write(U_pred[0], "- YOU MIGHT BE AT RISK; PLEASE SEE YOUR DOCTOR -- THIS IS NOT A PROFESSIONAL MEDICAL ADVISE")
+user_predict()  #Predict the status of user.
 
 
 
