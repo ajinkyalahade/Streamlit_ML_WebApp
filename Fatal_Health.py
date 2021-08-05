@@ -185,7 +185,7 @@ clf = get_classifier(classifier_select,params)
 ########################################################################################################################
 #get model trained
 def model():
-    X_train,X_test,Y_train,Y_test=train_test_split(X,Y,test_size=0.2,random_state=65)
+    X_train,X_test,Y_train,Y_test=train_test_split(X,Y,test_size=0.33,random_state=42)
 
     #MinMax Scaling / Normalization of data
     Std_scaler = StandardScaler()
