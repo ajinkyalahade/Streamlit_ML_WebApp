@@ -30,7 +30,7 @@ tit1,tit2 = st.beta_columns((4, 1))
 tit1.markdown("<h1 style='text-align: center;'><u>Fatal Health Conditions Main</u> </h1>",unsafe_allow_html=True)
 st.sidebar.title("Dataset and ML Classifier")
 
-dataset_select=st.sidebar.selectbox("Select Dataset: ",('Heart Attack',"Fatal Health Conditions"))
+dataset_select=st.sidebar.selectbox("Select Dataset: ",('Heart Attack',"Heart Disease"))
 classifier_select = st.sidebar.selectbox("Select ML Classifier: ", ("Logistic Regression","KNN","SVM","Decision Trees",
                                                               "Random Forest","Gradient Boosting","XGBoost"))
 
@@ -42,8 +42,8 @@ def get_dataset(dataset_select):
         return data
 
     else:
-        data = pd.read_csv("https://raw.githubusercontent.com/ajinkyalahade/Streamlit_ML_WebApp/main/Data/fetal_health.csv")
-        st.header("Fatal Health Conditions")
+        data = pd.read_csv("https://raw.githubusercontent.com/ajinkyalahade/Heart-Failure-Prediction/main/heart_failure_clinical_records_dataset.csv")
+        st.header("Heart Disease")
         return data
 
 data = get_dataset(dataset_select)
@@ -53,9 +53,9 @@ def selected_dataset(dataset_select):
         X = data.drop(["output"],axis=1)
         Y = data.output
         return X,Y
-    elif dataset_select == "Fatal Health Conditions":
-        X = data.drop(["fetal_health"],axis=1)
-        Y = data.fetal_health
+    elif dataset_select == "Heart Disease":
+        X = data.drop(["DEATH_EVENT"],axis=1)
+        Y = data.DEATH_EVENT
         return X,Y
 
 X,Y = selected_dataset(dataset_select)
@@ -70,7 +70,7 @@ def plot_op(dataset_select):
         sns.countplot(Y, palette='colorblind')
         col2.pyplot()
 
-    elif dataset_select == "Fatal Health Conditions":
+    elif dataset_select == "Heart Disease":
         col1.write(Y)
         sns.countplot(Y, palette='colorblind')
         col2.pyplot()
@@ -245,8 +245,8 @@ def compute(Y_pred,Y_test):
         round(precision, 3), round(recall, 3), round(fscore,3), round((acc*100),3), round((mse),3)))
 
 st.markdown("<hr>",unsafe_allow_html=True)
-st.header(f"1) Model for Prediction of {dataset_name}")
-st.subheader(f"Classifier Used: {classifier_name}")
+st.header(f"1) Model for Prediction of {dataset_select}")
+st.subheader(f"Classifier Used: {classifier_select}")
 compute(Y_pred,Y_test)
 
 #Execution Time
@@ -255,16 +255,16 @@ st.info(f"Total execution time: {round((end_time - start_time),4)} seconds")
 
 
 #Get user values
-def user_inputs_ui(dataset_name,data):
+def user_inputs_ui(da,data):
     user_val = {}
-    if dataset_name == "Breast Cancer":
-        X = data.drop(["id","diagnosis"], axis=1)
+    if dataset_select == "Heart Disease":
+        X = data.drop(["DEATH_EVENT"], axis=1)
         for col in X.columns:
             name=col
             col = st.number_input(col, abs(X[col].min()-round(X[col].std())), abs(X[col].max()+round(X[col].std())))
             user_val[name] = round((col),4)
 
-    elif dataset_name == "Heart Attack":
+    elif dataset_select == "Heart Attack":
         X = data.drop(["output"], axis=1)
         for col in X.columns:
             name=col
@@ -283,13 +283,13 @@ with st.beta_expander("See more"):
     <p style='color: red;'> 1 - High Risk </p> <p style='color: green;'> 0 - Low Risk </p>
     """,unsafe_allow_html=True)
 
-user_val=user_inputs_ui(dataset_name,data)
+user_val=user_inputs_ui(dataset_select,data)
 
 #@st.cache(suppress_st_warning=True)
 def user_predict():
     global U_pred
-    if dataset_select == "Breast Cancer":
-        X = data.drop(["id","diagnosis"], axis=1)
+    if dataset_select == "Heart Disease":
+        X = data.drop(["DEATH_EVENT"], axis=1)
         U_pred = clf.predict([[user_val[col] for col in X.columns]])
 
     elif dataset_select == "Heart Attack":
