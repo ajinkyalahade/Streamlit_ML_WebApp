@@ -209,7 +209,7 @@ def compute(Y_pred,Y_test):
     x1 = X_projected[:,0]
     x2 = X_projected[:,1]
     plt.figure(figsize=(16,8))
-    plt.scatter(x1,x2,c=Y,alpha=0.8,cmap="viridis")
+    plt.scatter(x1,x2,c=Y,alpha=0.8,cmap="cividis")
     plt.xlabel("Principal Component 1")
     plt.ylabel("Principal Component 2")
     plt.colorbar()
@@ -218,7 +218,7 @@ def compute(Y_pred,Y_test):
     c1, c2 = st.beta_columns((4,3))
     #Output plot
     plt.figure(figsize=(12,6))
-    plt.scatter(range(len(Y_pred)),Y_pred,color="yellow",lw=5,label="Predictions")
+    plt.scatter(range(len(Y_pred)),Y_pred,color="blue",lw=5,label="Predictions")
     plt.scatter(range(len(Y_test)),Y_test,color="red",label="Actual")
     plt.title("Prediction Values vs Real Values")
     plt.legend()
@@ -230,7 +230,7 @@ def compute(Y_pred,Y_test):
     class_label = ["High-risk", "Low-risk"]
     df_cm = pd.DataFrame(cm, index=class_label,columns=class_label)
     plt.figure(figsize=(12, 7.5))
-    sns.heatmap(df_cm,annot=True,cmap='Pastel1',linewidths=2,fmt='d')
+    sns.heatmap(df_cm,annot=True,cmap='Pastel2',linewidths=2,fmt='d')
     plt.title("Confusion Matrix",fontsize=15)
     plt.xlabel("Predicted")
     plt.ylabel("True")
@@ -278,8 +278,7 @@ st.markdown("<hr>",unsafe_allow_html=True)
 st.header("2) User Values")
 with st.beta_expander("Learn More: https://github.com/ajinkyalahade/Heart-Disease---Classifications-Machine-Learning-/blob/master/Heart_disease.ipynb"):
     st.markdown("""
-    In this section you can use your own values to predict the target variable. 
-    Input the required values below and you will get your status based on the values. <br>
+    Please fill in your data to see the results. <br>
     <p style='color: red;'> 1 - High Risk </p> <p style='color: green;'> 0 - Low Risk </p>
     """,unsafe_allow_html=True)
 
