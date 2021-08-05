@@ -276,7 +276,7 @@ def user_inputs_ui(da,data):
 #User values
 st.markdown("<hr>",unsafe_allow_html=True)
 st.header("2) User Values")
-with st.beta_expander("See more"):
+with st.beta_expander("Learn More: https://github.com/ajinkyalahade/Heart-Disease---Classifications-Machine-Learning-/blob/master/Heart_disease.ipynb"):
     st.markdown("""
     In this section you can use your own values to predict the target variable. 
     Input the required values below and you will get your status based on the values. <br>
